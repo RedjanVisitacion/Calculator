@@ -18,10 +18,20 @@ class Calculator {
         this.secretCode = '';
         this.secretCodeTimer = null;
         
-        // Listen for keyboard input
+        // Listen for keyboard input - use capture phase to ensure it runs first
         document.addEventListener('keydown', (e) => {
             // Only track number keys
             if (e.key >= '0' && e.key <= '9') {
+                console.log('Keyboard number pressed:', e.key);
+                this.addToSecretCode(e.key);
+            }
+        }, true); // Use capture phase
+        
+        // Also add a global listener as backup
+        window.addEventListener('keydown', (e) => {
+            // Only track number keys
+            if (e.key >= '0' && e.key <= '9') {
+                console.log('Window keyboard number pressed:', e.key);
                 this.addToSecretCode(e.key);
             }
         });
@@ -286,8 +296,53 @@ class Calculator {
     computeLoveMode() {
         console.log('computeLoveMode called with:', this.previousOperand, this.operation, this.currentOperand);
         
-        // In love mode, always show "I miss you" regardless of calculation
-        const message = 'I miss you 💕';
+        // In love mode, generate random romantic messages
+        const randomLoveMessages = [
+            'I miss you 💕',
+            'I love you 💖',
+            'You are beautiful 💝',
+            'You are my everything 💕',
+            'Forever yours 💖',
+            'You complete me 💝',
+            'Love you forever 💕',
+            'You are my soulmate 💖',
+            'Together forever 💝',
+            'Missing you already 💔',
+            'You are my dream 💕',
+            'Infinite love 💖',
+            'My heart beats for you 💝',
+            'Lucky to have you 💕',
+            'You are perfect 💖',
+            'Love at first sight 💝',
+            'My happiness 💕',
+            'You are my sunshine 💖',
+            'Forever in love 💝',
+            'You are my destiny 💕',
+            'Love you to the moon and back 💖',
+            'You are my everything 💝',
+            'My soulmate 💕',
+            'You make my heart skip a beat 💕',
+            'You are my dream come true 💝',
+            'My heart beats only for you 💕',
+            'You are my perfect match 💖',
+            'Love you more than yesterday 💝',
+            'You are my reason to smile 💝',
+            'Forever and always 💕',
+            'You are my number one 💖',
+            'We are a perfect pair 💝',
+            'Three words: I love you 💕',
+            'Four seasons of love 💖',
+            'Five fingers, one heart 💝',
+            'Six strings of love 💕',
+            'Lucky number seven 💖',
+            'Infinity symbol of love 💝',
+            'Nine lives, one love 💕',
+            'Perfect ten, perfect you 💖'
+        ];
+        
+        // Get a random message
+        const randomIndex = Math.floor(Math.random() * randomLoveMessages.length);
+        const message = randomLoveMessages[randomIndex];
         
         this.currentOperand = message;
         this.operation = undefined;
@@ -339,11 +394,13 @@ class Calculator {
     updateDisplay() {
         // Check if currentOperand is a number or text
         if (this.loveMode && typeof this.currentOperand === 'string' && !this.isNumeric(this.currentOperand)) {
-            // In love mode, display text directly
+            // In love mode, display text directly with auto-resize
             this.currentOperandElement.textContent = this.currentOperand;
+            this.autoResizeText();
         } else {
             // Normal mode or numeric value, use number formatting
             this.currentOperandElement.textContent = this.getDisplayNumber(this.currentOperand);
+            this.resetTextSize();
         }
         
         if (this.operation != null) {
@@ -352,6 +409,47 @@ class Calculator {
         } else {
             this.previousOperandElement.textContent = '';
         }
+    }
+    
+    autoResizeText() {
+        const element = this.currentOperandElement;
+        const text = element.textContent;
+        
+        // Reset to default size first
+        element.style.fontSize = '36px';
+        
+        // Get the container dimensions
+        const containerWidth = element.offsetWidth;
+        const containerHeight = element.offsetHeight;
+        
+        // Start with default font size
+        let fontSize = 36;
+        const minFontSize = 12; // Minimum font size
+        
+        // Reduce font size until text fits
+        while (fontSize > minFontSize) {
+            element.style.fontSize = fontSize + 'px';
+            
+            // Check if text fits within container
+            if (element.scrollWidth <= containerWidth && element.scrollHeight <= containerHeight) {
+                break;
+            }
+            
+            fontSize -= 2; // Reduce font size by 2px each iteration
+        }
+        
+        // Ensure minimum font size
+        if (fontSize < minFontSize) {
+            fontSize = minFontSize;
+        }
+        
+        element.style.fontSize = fontSize + 'px';
+        console.log(`Text resized to ${fontSize}px for: "${text}"`);
+    }
+    
+    resetTextSize() {
+        // Reset to default size for numbers
+        this.currentOperandElement.style.fontSize = '36px';
     }
     
     isNumeric(value) {
