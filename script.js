@@ -285,76 +285,9 @@ class Calculator {
     
     computeLoveMode() {
         console.log('computeLoveMode called with:', this.previousOperand, this.operation, this.currentOperand);
-        const prev = this.previousOperand;
-        const current = this.currentOperand;
-        const operation = this.operation;
         
-        // Create a unique key for the calculation
-        const calculationKey = `${prev}${operation}${current}`;
-        console.log('Calculation key:', calculationKey);
-        
-        // Special love messages for common calculations
-        const specialLoveMessages = {
-            '1+1': 'I miss you 💕',
-            '1+2': 'You are my everything 💖',
-            '2+2': 'Forever yours 💝',
-            '1×1': 'You complete me 💕',
-            '2×2': 'Love you forever 💖',
-            '1÷1': 'You are my soulmate 💝',
-            '3+3': 'Together forever 💕',
-            '1-1': 'Missing you already 💔',
-            '2-1': 'You are my dream 💕',
-            '5+5': 'Infinite love 💖',
-            '10+10': 'My heart beats for you 💝',
-            '7+7': 'Lucky to have you 💕',
-            '1×10': 'You are perfect 💖',
-            '2×5': 'Love at first sight 💝',
-            '3×3': 'My happiness 💕'
-        };
-        
-        // Check if it's a special calculation first
-        let message = specialLoveMessages[calculationKey];
-        
-        if (!message) {
-            // Generate romantic message based on the actual math result
-            const prevNum = parseFloat(prev);
-            const currentNum = parseFloat(current);
-            
-            if (!isNaN(prevNum) && !isNaN(currentNum)) {
-                let result;
-                switch (operation) {
-                    case '+':
-                        result = prevNum + currentNum;
-                        break;
-                    case '-':
-                        result = prevNum - currentNum;
-                        break;
-                    case '×':
-                        result = prevNum * currentNum;
-                        break;
-                    case '÷':
-                        if (currentNum === 0) {
-                            message = 'My heart is broken 💔';
-                            break;
-                        }
-                        result = prevNum / currentNum;
-                        break;
-                }
-                
-                if (message) {
-                    // Message already set (like division by zero)
-                } else if (typeof result !== 'undefined') {
-                    // Generate message based on the result
-                    message = this.generateLoveMessageFromResult(result, prevNum, currentNum, operation);
-                } else {
-                    // Fallback to random romantic message
-                    message = this.getRandomLoveMessage();
-                }
-            } else {
-                // Fallback to random romantic message
-                message = this.getRandomLoveMessage();
-            }
-        }
+        // In love mode, always show "I miss you" regardless of calculation
+        const message = 'I miss you 💕';
         
         this.currentOperand = message;
         this.operation = undefined;
@@ -363,70 +296,7 @@ class Calculator {
         this.updateDisplay();
     }
     
-    generateLoveMessageFromResult(result, num1, num2, operation) {
-        // Messages based on result values
-        if (result === 0) {
-            return 'You are my zero, my beginning 💕';
-        } else if (result === 1) {
-            return 'You are my number one 💖';
-        } else if (result === 2) {
-            return 'We are a perfect pair 💝';
-        } else if (result === 3) {
-            return 'Three words: I love you 💕';
-        } else if (result === 4) {
-            return 'Four seasons of love 💖';
-        } else if (result === 5) {
-            return 'Five fingers, one heart 💝';
-        } else if (result === 6) {
-            return 'Six strings of love 💕';
-        } else if (result === 7) {
-            return 'Lucky number seven 💖';
-        } else if (result === 8) {
-            return 'Infinity symbol of love 💝';
-        } else if (result === 9) {
-            return 'Nine lives, one love 💕';
-        } else if (result === 10) {
-            return 'Perfect ten, perfect you 💖';
-        } else if (result > 100) {
-            return 'Love beyond numbers 💝';
-        } else if (result < 0) {
-            return 'Negative numbers, positive love 💕';
-        } else if (result % 2 === 0) {
-            return 'Even numbers, odd love 💖';
-        } else if (result % 2 === 1) {
-            return 'Odd numbers, even love 💝';
-        } else if (result.toString().includes('.')) {
-            return 'Decimal love, infinite heart 💕';
-        } else {
-            return `Love equals ${result} 💖`;
-        }
-    }
-    
-    getRandomLoveMessage() {
-        const randomMessages = [
-            'You are beautiful 💕',
-            'I love you 💖',
-            'You are amazing 💝',
-            'My heart belongs to you 💕',
-            'You are my sunshine 💖',
-            'Forever in love 💝',
-            'You are my destiny 💕',
-            'Love you to the moon and back 💖',
-            'You are my everything 💝',
-            'My soulmate 💕',
-            'You make my heart skip a beat 💕',
-            'Love at first sight 💖',
-            'You are my dream come true 💝',
-            'My heart beats only for you 💕',
-            'You are my perfect match 💖',
-            'Love you more than yesterday 💝',
-            'You are my happiness 💕',
-            'My love for you is endless 💖',
-            'You are my reason to smile 💝',
-            'Forever and always 💕'
-        ];
-        return randomMessages[Math.floor(Math.random() * randomMessages.length)];
-    }
+
     
     clear() {
         this.currentOperand = '0';
@@ -467,7 +337,14 @@ class Calculator {
     }
     
     updateDisplay() {
-        this.currentOperandElement.textContent = this.getDisplayNumber(this.currentOperand);
+        // Check if currentOperand is a number or text
+        if (this.loveMode && typeof this.currentOperand === 'string' && !this.isNumeric(this.currentOperand)) {
+            // In love mode, display text directly
+            this.currentOperandElement.textContent = this.currentOperand;
+        } else {
+            // Normal mode or numeric value, use number formatting
+            this.currentOperandElement.textContent = this.getDisplayNumber(this.currentOperand);
+        }
         
         if (this.operation != null) {
             this.previousOperandElement.textContent = 
@@ -475,6 +352,10 @@ class Calculator {
         } else {
             this.previousOperandElement.textContent = '';
         }
+    }
+    
+    isNumeric(value) {
+        return !isNaN(value) && !isNaN(parseFloat(value));
     }
 }
 
